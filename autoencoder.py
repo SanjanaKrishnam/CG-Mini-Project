@@ -7,7 +7,6 @@ from keras.models import Sequential
 from keras.models import Model
 from keras.layers import LSTM
 from keras.layers import Dense
-from keras.layers import RepeatVector
 from keras.layers import TimeDistributed
 
 
@@ -19,38 +18,34 @@ for i in range(0,90):
 arr = np.dstack(arr_list)
 arr = np.rollaxis(arr,-1)
 
-sequence = arr[1,:,:]
-sequence = sequence.reshape((1,240,117))
-
-samples = 90
-features = 117
-timesteps = 240
+samples = arr.shape[0]
+timesteps = arr.shape[1]
+features = arr.shape[2]
 
 model = Sequential()
 
-model.add(LSTM(30, activation='relu', input_shape=(timesteps,features)))
-model.add(RepeatVector(timesteps))
-
-model.add(LSTM(10, activation='relu'))
-model.add(RepeatVector(timesteps))
-
-model.add(LSTM(4, activation='relu'))
-model.add(RepeatVector(timesteps))
-
-model.add(LSTM(10, activation='relu'))
-model.add(RepeatVector(timesteps))
-
-model.add(LSTM(30, activation='relu'))
-model.add(RepeatVector(timesteps))
-
+model.add(LSTM(30, activation='relu', return_sequences = True, input_shape=(timesteps,features)))
+model.add(LSTM(10, activation='relu', return_sequences = True))
+model.add(LSTM(4, activation='relu', return_sequences=True))
+model.add(LSTM(10, activation='relu', return_sequences = True))
+model.add(LSTM(30, activation='relu', return_sequences = True))
 model.add(LSTM(117, activation='relu', return_sequences=True))
+model.add(TimeDistributed(Dense(features), input_shape=(timesteps,features)))
 
-model.compile(optimizer='adam', loss='mse')
-model.fit(sequence, sequence, epochs=300, verbose=0)
+model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
+
+model.fit(arr, arr, validation_split=0.33, epochs = 300)
 
 model = Model(inputs=model.inputs, outputs=model.layers[2].output)
 
-yhat = model.predict(sequence)
-print(yhat.shape)
-print(sequence.shape)
-print(yhat)
+Train_Data_Reduced = model.predict(arr)
+
+
+
+
+
+
+
+
+
+
