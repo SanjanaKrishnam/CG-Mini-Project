@@ -30,7 +30,7 @@ model.add(LSTM(4, activation='relu', return_sequences=True))
 model.add(LSTM(10, activation='relu', return_sequences = True))
 model.add(LSTM(30, activation='relu', return_sequences = True))
 model.add(LSTM(117, activation='relu', return_sequences=True))
-model.add(TimeDistributed(Dense(features), input_shape=(timesteps,features)))
+
 
 model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
 
